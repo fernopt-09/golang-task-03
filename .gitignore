@@ -1,0 +1,23 @@
+# Binaries
+/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/app
+/client
+
+# Test artifacts
+*.out
+*.test
+coverage.txt
+
+# IDE
+.idea/
+.vscode/
+
+# Environment / local overrides
+.env
+.env.local
+.task/

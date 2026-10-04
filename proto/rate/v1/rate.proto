@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package rate.v1;
+
+option go_package = "github.com/kazah/golang-task-03/gen/rate/v1;ratev1";
+
+enum CalculationMethod {
+  CALCULATION_METHOD_UNSPECIFIED = 0;
+  CALCULATION_METHOD_TOP_N = 1;
+  CALCULATION_METHOD_AVG_NM = 2;
+}
+
+message GetRatesRequest {
+  CalculationMethod method = 1;
+  optional uint32 n = 2;
+  optional uint32 m = 3;
+}
+
+message GetRatesResponse {
+  double ask = 1;
+  double bid = 2;
+  int64 timestamp = 3;
+  CalculationMethod method = 4;
+  uint32 n = 5;
+  uint32 m = 6;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  enum ServingStatus {
+    SERVING_STATUS_UNKNOWN = 0;
+    SERVING_STATUS_SERVING = 1;
+    SERVING_STATUS_NOT_SERVING = 2;
+  }
+  ServingStatus status = 1;
+}
+
+service RateService {
+  rpc GetRates(GetRatesRequest) returns (GetRatesResponse);
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
