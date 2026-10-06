@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: docker.io/library/postgres:16-alpine
+    container_name: rate-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-ratedb}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ${DB_NAME:-ratedb}"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 3s
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rate-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-ratedb}
+      DB_SSLMODE: disable
+      GRPC_PORT: 50051
+      METRICS_PORT: 9090
+      BINANCE_API_URL: ${BINANCE_API_URL:-https://api.binance.com}
+      BINANCE_SYMBOL: ${BINANCE_SYMBOL:-USDTTRY}
+      BINANCE_TIMEOUT: 5s
+      AUTO_MIGRATE: "true"
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "50051:50051"
+      - "9090:9090"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
